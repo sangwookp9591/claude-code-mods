@@ -1,0 +1,8 @@
+{
+  "name": "__MOD__",
+  "version": "0.1.0",
+  "description": "__DESC__",
+  "author": { "name": "__AUTHOR__" },
+  "license": "MIT",
+  "types": "./types/index.d.ts"
+}

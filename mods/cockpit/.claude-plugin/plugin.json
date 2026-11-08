@@ -1,0 +1,8 @@
+{
+  "name": "cockpit",
+  "version": "0.1.0",
+  "description": "Session cockpit: a live dashboard pane, a band above the prompt and a status line for context, cost, turns and tool calls.",
+  "author": { "name": "sangwookpark" },
+  "license": "MIT",
+  "types": "./types/index.d.ts"
+}

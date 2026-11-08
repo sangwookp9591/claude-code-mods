@@ -1,0 +1,8 @@
+{
+  "name": "mods-lab",
+  "version": "0.1.0",
+  "description": "A test bench for Claude Code mods: press a probe to call one mods API and see whether this build answers it.",
+  "author": { "name": "sangwookpark" },
+  "license": "MIT",
+  "types": "./types/index.d.ts"
+}
