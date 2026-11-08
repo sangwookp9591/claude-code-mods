@@ -1,0 +1,8 @@
+{
+  "name": "blackbox",
+  "version": "0.1.0",
+  "description": "A flight recorder for Claude Code sessions: a live radar of every tool call, a diff reel of every edit, guard rails for risky commands, and an AI debrief.",
+  "author": { "name": "sangwookpark" },
+  "license": "MIT",
+  "types": "./types/index.d.ts"
+}

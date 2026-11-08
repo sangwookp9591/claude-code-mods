@@ -1,10 +1,20 @@
 {
   "name": "claude-code-mods",
-  "description": "Claude Code mods: a session dashboard (cockpit) and a capability test bench (mods-lab).",
+  "description": "Claude Code mods: a living aquarium (reef), a flight recorder (blackbox), a session dashboard (cockpit) and a capability test bench (mods-lab).",
   "owner": {
     "name": "sangwookpark"
   },
   "plugins": [
+    {
+      "name": "reef",
+      "source": "./mods/reef",
+      "description": "A living ASCII aquarium beside the chat: tool calls feed the fish, new fish hatch as Claude works, and the reef sleeps when the session goes quiet."
+    },
+    {
+      "name": "blackbox",
+      "source": "./mods/blackbox",
+      "description": "Flight recorder: live radar of tool calls, a diff reel, guard rails for risky commands, and an AI debrief."
+    },
     {
       "name": "cockpit",
       "source": "./mods/cockpit",

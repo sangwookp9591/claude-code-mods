@@ -1,0 +1,8 @@
+{
+  "name": "reef",
+  "version": "0.1.0",
+  "description": "A living ASCII aquarium beside the chat. Every tool call Claude makes drops food, new fish hatch as it works, errors sink as wrecks, and the reef sleeps when the session goes quiet.",
+  "author": { "name": "sangwookpark" },
+  "license": "MIT",
+  "types": "./types/index.d.ts"
+}
