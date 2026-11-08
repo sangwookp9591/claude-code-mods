@@ -32,14 +32,14 @@ claude --plugin-dir ./mods/my-board
 | :- | :- | :- |
 | `accent` | `claude` | 제목 글리프 ◆, 강조 수치 |
 | `ok` | `success` | 정상, 완료 ✓ |
-| `warn` | `warning` | 진행 중 ◐, 60% 이상 |
+| `warn` | `warning` | 거부 ⊘, 60% 이상 |
 | `bad` | `error` | 실패 ✗, 85% 이상 |
-| `muted` | `subtle` | 거부 ⊘, 0인 값 |
-| `info` | `suggestion` | 일반 수치 |
+| `muted` | `subtle` | 0인 값 |
+| `info` | `suggestion` | 진행 중 ◐, 일반 수치 |
 
-예외는 `Raster` 하나다. 셀 색이 `0x00RRGGBB`만 받으므로 `kit.tsx`의 `RGB` 표가 같은 의미의 고정 색을 둔다.
+`Raster`는 셀 색으로 `0x00RRGGBB`만 받아 사용자 테마를 따르지 못하므로 키트에서 쓰지 않는다. 같은 그래프가 표면마다 다르게 읽히지 않도록 모든 표면에 같은 `Text` 경로를 쓴다.
 
-임계값은 `levelTone(pct)` 한 곳에서 정한다. 60 미만 `ok`, 85 미만 `warn`, 그 이상 `bad`.
+임계값은 `LEVELS`와 `levelTone(pct)` 한 곳에서 정한다. 60 미만 `ok`, 85 미만 `warn`, 그 이상 `bad`. 색을 구분하기 어려운 사람도 읽도록 `levelWord(pct)`가 `roomy`, `filling`, `nearly full`을 함께 준다.
 
 ## 부품
 
@@ -47,21 +47,25 @@ claude --plugin-dir ./mods/my-board
 
 | 부품 | 모양 | 비고 |
 | :- | :- | :- |
-| `Heading(ui, text, right?)` | `◆ 제목 ........ 오른쪽 메모` | 창의 첫 줄 |
-| `Tabs(ui, tabs, active, onPick)` | `[ Overview ] [ Tools ]` | 활성 탭은 `variant="primary"`. 각 탭에 `key="tab-<id>"`와 숫자 `hotkey` |
+| `Heading(ui, text, width, right?)` | `◆ 제목 ........ 오른쪽 메모` | 창의 첫 줄. 자리가 없으면 오른쪽 메모를 뺀다 |
+| `Tabs(ui, tabs, active, width, onPick)` | `[ ▸Overview ] [  Tools ]` | 활성 탭은 `variant="primary"`와 `▸`로 표시. 각 탭에 `key="tab-<id>"`와 숫자 `hotkey`. 좁으면 `short` 이름을 쓴다. 숫자 단축키는 창에 포커스가 있을 때만 동작한다 |
+| `Pager(ui, page, size, total, noun, onPage)` | `1–10 of 40 calls Newer Older` | 긴 목록을 `scroll.bodyRows`에 맞춰 나눈다 |
 | `Rule(ui, width)` | `────────` | 탭과 본문 사이 |
-| `Meter(ui, label, pct, width)` | `context ████░░░░ 42%` | `null`이면 `n/a` |
+| `Meter(ui, label, pct, width)` | `context ████░░░░ 42% roomy` | `null`이면 `n/a` |
 | `Stat(ui, label, value, tone)` | 위 작은 라벨, 아래 굵은 값 | `flexWrap="wrap"` 줄에 나란히 |
-| `Spark(ui, key, values, width, opts)` | `▁▂▅▇█` | 터미널은 색 있는 `Raster` 한 개, 다른 표면은 `Text` |
-| `duration`, `usd`, `clip`, `bar`, `sparkText` | 서식 함수 | 순수 함수 |
+| `Spark(ui, key, values, width, opts)` | `▁▂▅▇█` | 모든 표면에서 같은 축과 색. 왼쪽 정렬. 위에 범위 라벨을 둔다 |
+| `cells`, `clip`, `clipMiddle` | 표시 폭 계산과 자르기 | 전각 문자는 2칸. `clipMiddle`은 파일 이름을 남긴다 |
+| `duration`, `usd`, `bar` | 서식 함수 | 순수 함수 |
 
 ## 배치 규칙
 
-1. 창과 띠의 너비는 `e.props.bodyColumns`로 맞춘다. 창이 트랜스크립트 옆에 붙으면 viewport보다 좁다.
-2. 창의 높이는 `e.viewport?.rows`로 짐작하고, 목록은 그만큼만 그린다. 보이는 부분만 그리는 것이 10만 자 제한을 피하는 방법이다.
-3. 띠는 한 줄이다. `e.props.hasSurvey`일 때와 보여 줄 것이 없을 때는 `next(e)`로 물러난다. 숨기기 버튼 `×`를 둔다. 사용자가 반드시 답해야 하는 것은 띠에만 두지 않는다. 사용자가 띠를 접으면 mod는 그 사실을 알 수 없다.
+1. 창과 띠의 너비는 `e.props.bodyColumns`로 맞춘다. 창이 트랜스크립트 옆에 붙으면 viewport보다 좁다. 임의의 하한(20열 같은)을 두지 않고, 좁으면 정보를 단계적으로 뺀다.
+2. 창의 높이는 `e.props.scroll.bodyRows`로 정하고, 긴 목록은 `Pager`로 나눈다. 잘린 목록은 숨은 개수와 다음 페이지를 보여 준다.
+3. 띠는 한 줄이다. `e.props.hasSurvey`일 때와 보여 줄 것이 없을 때는 `next(e)`로 물러난다. 상태줄과 창에 이미 있는 값을 반복하지 말고 최근 결과와 행동을 보여 준다. 위험 구간의 값만 띠로 올린다. 숨기기 버튼을 두고, 창 안에 다시 표시하는 버튼을 함께 둔다. 사용자가 반드시 답해야 하는 것은 띠에만 두지 않는다. 사용자가 띠를 접으면 mod는 그 사실을 알 수 없다.
+   값이 어느 시점의 것인지 적는다. `turn.complete`에서 저장한 값이면 "마지막 완료 턴" 기준임을 표시한다. 띠와 창은 terminal과 desktop에서 쓰이며 `AbovePrompt`는 다른 표면에서 호출되지 않는다.
+   **세션 합계는 보관 배열에서 계산하지 않는다.** 배열은 잘리므로 합계용 값을 따로 둔다.
 4. 목록의 각 `Button`에는 고유한 `key`를 준다.
-5. 색 칸 격자는 `Box` 여러 개가 아니라 `Raster` 하나로 그린다.
+5. 한 그리기의 예산은 세 겹으로 지킨다. 행 수는 `bodyRows` 안에서, 필드 하나는 `FIELD_MAX`(240자) 안에서 저장하고, 표시는 `clip`으로 열 수에 맞춘다. 행 수만 제한하면 긴 도구 이름 하나가 직렬화 한도(10만 자)를 넘길 수 있다.
 
 ## 상태 규칙
 
@@ -87,4 +91,5 @@ claude --plugin-dir ./mods/my-board
 - `mock.clock(on)`과 `mock.store(on)`로 시계와 저장소를 대신한다.
 - 엔진 대역은 `on('command.register', ...)`, `on('tool.call', ...)`처럼 테스트의 `on`으로 세운다.
 - 그리기 테스트는 표면 목록을 돌며 `$.ui.mount`로 한 번씩 그린다. 최소 `terminal`과 `desktop`.
+- 레이아웃 fixture를 둔다. 20, 32, 56열에서 어느 행도 폭을 넘지 않는지, 긴 한글 경로, 긴 MCP 도구 이름, 보관 한도를 넘는 호출 수, 띠 숨김 뒤 복원, 표면별로 같은 그래프를 확인한다.
 - 옛 버전이 저장한 값을 `on('state.get', { key }, ...)`로 주입해 shape 태그가 막는지 확인한다.

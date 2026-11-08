@@ -16,6 +16,8 @@ export type TurnRec = {
   reason: string
 }
 export type FileRec = { path: string; reads: number; edits: number }
+export type Totals = { turns: number; calls: number; failed: number; denied: number; busyMs: number }
+export type Live = { n: number; startedAt: number } | null
 export type Tab = 'overview' | 'tools' | 'files'
 export type Lifetime = { sessions: number; turns: number; toolCalls: number }
 
@@ -25,7 +27,10 @@ declare module 'claude-code' {
       calls: Shaped<CallRec[]>
       turns: Shaped<TurnRec[]>
       files: Shaped<FileRec[]>
+      totals: Shaped<Totals>
+      live: Shaped<Live>
       tab: Tab
+      page: number
       isBandHidden: boolean
     }
   }

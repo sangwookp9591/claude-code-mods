@@ -112,7 +112,7 @@ export const register: Register = on => {
   })
 
   on('command.run', { command: 'reef' }, async $ => ({
-    text: (await togglePane($)) ? 'Reef opened. Click the water to feed the fish.' : 'Reef closed.',
+    text: (await togglePane($)) ? 'Reef opened.' : 'Reef closed.',
   }))
 
   on('command.run', { command: 'reef-reset' }, async $ => {
@@ -183,14 +183,16 @@ export const register: Register = on => {
     const hasClient = e.surface === 'terminal' || e.surface === 'desktop'
     const asleep = !working && r.lastAt > 0 && now - r.lastAt > 45_000
 
-    const stats = `${r.fish.length} fish · ${r.hatched} hatched · fed ${r.fed} · ${r.turns} turns`
+    const stats = `${r.fish.length} fish · ${r.hatched} hatched · fed ${r.fed} · ${r.turns} ${r.turns === 1 ? 'turn' : 'turns'}`
     const mood = r.fish.length === 0 ? 'empty' : asleep ? 'asleep' : working ? 'feeding' : 'calm'
     const about = chosen
       ? `${chosen.name} the ${KIND[chosen.species].word} · hatched from ${chosen.tool}${chosen.label ? ` ${chosen.label}` : ''} · ${ago(now - chosen.bornAt)}`
       : r.fish.length === 0
         ? `The reef is empty. The first tool calls Claude makes hatch fish, and one more hatches every ${HATCH_EVERY} calls after that.`
         : hasClient
-          ? 'Click the water to drop food. Click a fish to meet it. Arrow keys and f work after a click.'
+          ? e.viewport?.isFullscreen === false
+            ? 'Press Feed to drop food. Clicking the water and the fish needs the fullscreen layout: /tui fullscreen.'
+            : 'Click the water to drop food. Click a fish to meet it. Arrow keys and f work after a click.'
           : 'Open this pane in the terminal or the desktop app to watch the fish swim.'
 
     const tank = hasClient && 'Client' in ui ? (

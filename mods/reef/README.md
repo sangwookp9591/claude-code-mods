@@ -7,7 +7,7 @@ A living ASCII aquarium that sits beside the chat in Claude Code. Claude's work 
 - A failed call sinks a red `✗` wreck to the sand.
 - Each finished turn grows the seaweed.
 - After 45 quiet seconds the lights dim and the fish fall asleep.
-- Click the water to drop food yourself. Click a fish to see its name and the tool call it hatched from.
+- Click the water to drop food yourself. Click a fish to see its name and the tool call it hatched from. Clicks need the fullscreen layout (`/tui fullscreen`). On the default layout, use the Feed button.
 - The reef is saved when a turn ends, so your fish are still there next session.
 
 ## Commands

@@ -22,7 +22,7 @@ From a shell: `claude plugin install blackbox --marketplace sangwookp9591/claude
 ## Use
 
 - `/blackbox` opens or closes the pane. It also opens by itself in an interactive session.
-- `1` to `4` switch tabs while the pane has focus. Click the radar to give it focus for the arrow keys.
+- `1` to `4` switch tabs while the pane has focus. Click the radar to give it focus for the arrow keys. Clicks need the fullscreen layout (`/tui fullscreen`).
 - `×` on the band hides it; `Show band` in the pane brings it back.
 - `/blackbox-reset` and `/clear` clear the recording. Guard rules stay as you set them.
 

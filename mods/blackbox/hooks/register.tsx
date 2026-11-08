@@ -281,7 +281,7 @@ async function writeBrief($: EngineInterface, cwd: string): Promise<void> {
 
 type Ui = ReturnType<EngineInterface['ui']['resolve']>
 
-async function radarView($: EngineInterface, ui: Ui, hasClient: boolean, w: number, callList: readonly Call[], changeList: readonly Change[]): Promise<RenderElement> {
+async function radarView($: EngineInterface, ui: Ui, hasClient: boolean, canPoint: boolean, w: number, callList: readonly Call[], changeList: readonly Change[]): Promise<RenderElement> {
   const now = await $.clock.now()
   const sel = await read($, picked)
   const pick = callList.find(c => c.id === sel) ?? callList.at(-1)
@@ -310,7 +310,7 @@ async function radarView($: EngineInterface, ui: Ui, hasClient: boolean, w: numb
         <ui.Text color={bad > 0 ? 'error' : 'subtle'}>{`✗ ${bad}`}</ui.Text>
         {'  '}
         <ui.Text color={stop > 0 ? 'error' : 'subtle'}>{`⊘ ${stop} blocked`}</ui.Text>
-        <ui.Text dimColor>{'  · ← → or click a blip'}</ui.Text>
+        {hasClient && canPoint && <ui.Text dimColor>{'  · ← → or click a blip'}</ui.Text>}
       </ui.Text>
       {pick === undefined ? (
         <ui.Text dimColor>Waiting for the first tool call. Every call lands on the radar as it happens.</ui.Text>
@@ -602,7 +602,7 @@ export const register: Register = on => {
     const right = t.n === 0 ? 'standing by' : `turn #${t.n} · ${callList.length} calls · ${changeList.length} edits`
     const body =
       active === 'radar'
-        ? await radarView($, ui, e.surface === "terminal" || e.surface === "desktop", w, callList, changeList)
+        ? await radarView($, ui, e.surface === "terminal" || e.surface === "desktop", e.viewport?.isFullscreen !== false, w, callList, changeList)
         : active === 'reel'
           ? await reelView($, ui, w, rows, changeList)
           : active === 'guard'

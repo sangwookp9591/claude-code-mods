@@ -37,13 +37,25 @@
 
 ## 대화형 세션에서 확인할 것
 
-- [ ] `/lab` 창이 열리고 탭과 Run all이 동작한다
-- [ ] `ui.notify`, `ui.copy`, 두 번째 창 열고 닫기 통과
-- [ ] `prompt.fill`이 프롬프트에 글자를 넣는다
+- [x] `/lab` 창이 열리고 탭과 Run all이 동작한다 (실제 터미널에서 마우스로 확인. 29/38 통과, 2 실패, 나머지는 사람이 필요한 항목)
+- [x] `ui.copy`, 두 번째 창 열고 닫기 통과. `ui.notify`는 알림 채널이 없는 터미널에서 `not sent: no-channel`로 실패한다
+- [x] `prompt.fill`이 프롬프트에 글자를 넣는다 (`mods-lab was here`)
 - [ ] 띠 프로브의 `band ok` 버튼
 - [ ] `ui.notice`가 다음 도구 호출 아래에 뜬다
-- [ ] Tools 탭에서 버튼으로 누른 `tool.call`. 테스트 키트에서는 자기 echo 훅이 답하지 않았다. 실제 세션의 답을 기록할 것
+- [x] Tools 탭에서 버튼으로 누른 `tool.call`. 실제 세션에서도 테스트 키트와 같이 `registered the tool echo but no tool.call hook answered`로 실패한다. mod가 `$.tool.call`로 부른 호출에는 자기 `tool.call` 훅이 답하지 않는다. 모델이 부르는 경로와는 다르다
 - [ ] `model.complete` 버튼 (토큰 소량 사용)
+
+## 실제 터미널에서 잰 입력 동작
+
+ttyd와 헤드리스 Chrome으로 실제 Claude Code에 마우스 이벤트를 보내 확인했다.
+
+| 조건 | 결과 |
+| :- | :- |
+| 기본 레이아웃(`tui` 미설정, 창이 프롬프트 위에 인라인) | `Client`의 `onPointer`에 클릭이 오지 않는다. reef에서 클릭 4번, `fed` 변화 없음 |
+| 전체 화면 레이아웃(`/tui fullscreen`, 창이 대화 옆에 도킹) | 클릭이 온다. reef에서 클릭 4번에 `fed` 36에서 40, 물고기 클릭으로 이름 표시 |
+| 전체 화면에서 `Button` | 포인터가 먼저 올라가 있으면 한 번에 눌린다. 이동 후 60ms 안에 누르면 첫 클릭이 무시됐다 |
+
+그래서 클릭을 안내하는 문구는 `e.viewport?.isFullscreen === false`일 때 숨긴다.
 
 ## 정적 검사가 강제한 설계 규칙
 

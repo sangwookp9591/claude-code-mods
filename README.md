@@ -2,7 +2,7 @@
 
 Four mods for [Claude Code](https://code.claude.com), plus study notes, a starter template and a generator for building your own.
 
-A mod is a plugin that changes Claude Code itself: a pane beside the chat, a band above the prompt, a card under a tool call, a guard on what tools may run. It is one TypeScript/JSX module that hooks engine events and draws with the engine's own elements. Every recording below is a real Claude Code session in a terminal with the mod loaded.
+A mod is a plugin that changes Claude Code itself: a pane beside the chat, a band above the prompt, a card under a tool call, a guard on what tools may run. It is one TypeScript/JSX module that hooks engine events and draws with the engine's own elements. Every recording below is a real Claude Code session in a terminal with the mod loaded, with real mouse clicks. The top of the transcript is masked to hide the account line.
 
 ## The mods
 
@@ -36,11 +36,23 @@ A flight recorder for a Claude Code session.
 
 ### cockpit
 
-A session dashboard: context meter, cost, turn and tool counts, sparklines of context and turn time, a tool call log, and a ranking of the files Claude read and edited. A band above the prompt shows context and cost, and the status line shows `ctx 42% · $0.31` after each turn. `/cockpit` opens it.
+A session dashboard.
+
+![cockpit: session totals, a paged tool log and per-file counts](assets/cockpit.gif)
+
+- **Overview.** Context and cost as of the last finished turn, session totals that keep counting past what the lists retain, and graphs of context and turn time.
+- **Tools and Files.** A paged log of tool calls with outcome and duration, and per-file counts of reads and edits.
+- **Band and status line.** The band shows what the current turn is doing or how the last one ended, and the status line shows `ctx 42% · $0.31` after each turn.
+
+`/cockpit` opens it. `/cockpit-reset` clears the session.
 
 ### mods-lab
 
-A test bench for the mods API. Each probe calls one API (`$.ui.toast`, `$.fs.read`, `$.model.complete` and the rest) and records whether your build answered it, with the exact error when it did not. Use it to see what works before you design a mod. `/lab` opens it, and `claude -p "/lab run"` prints the results headless.
+A test bench for the mods API.
+
+![mods-lab: one button runs every probe against this build](assets/mods-lab.gif)
+
+Each probe calls one API (`$.ui.toast`, `$.fs.read`, `$.model.complete` and the rest) and records whether your build answered it, with the exact error when it did not. Use it to see what works before you design a mod. `/lab` opens it, and `claude -p "/lab run"` prints the results headless.
 
 ## Install
 
@@ -58,6 +70,8 @@ From a shell, use `claude plugin install reef --marketplace sangwookp9591/claude
 In the desktop app, press + next to the prompt, then Plugins, then Add marketplace, enter `sangwookp9591/claude-code-mods`, and press Add plugin.
 
 Panes animate in the terminal and the desktop app. VS Code and mobile get a static fallback.
+
+Clicking inside an animated pane needs the fullscreen layout, so run `/tui fullscreen` in the terminal. On the default layout the buttons still work from the keyboard (`ctrl+x tab` moves focus to them), and the mods stop offering clicks they cannot receive.
 
 ## Try them without installing
 

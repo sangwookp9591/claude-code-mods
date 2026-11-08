@@ -2,7 +2,7 @@ import { atom, read, update } from 'claude-code'
 import type { EngineInterface, Register } from 'claude-code'
 
 import type { Item, Tab } from '../types'
-import { Heading, Rule, Stat, Tabs, clip, tone } from './kit'
+import { FIELD_MAX, Heading, Rule, Stat, Tabs, cells, clip, tone } from './kit'
 import type { Kit } from './kit'
 
 const MOD = '__MOD__'
@@ -14,9 +14,9 @@ const tab = atom({ plugin: '__MOD__', key: 'tab' } as const, 'main')
 const isBandHidden = atom({ plugin: '__MOD__', key: 'isBandHidden' } as const, false)
 
 const TABS = [
-  { id: 'main', label: 'Main', hotkey: '1' },
-  { id: 'about', label: 'About', hotkey: '2' },
-] as const satisfies readonly { id: Tab; label: string; hotkey: string }[]
+  { id: 'main', label: 'Main', short: 'Mn', hotkey: '1' },
+  { id: 'about', label: 'About', short: 'Ab', hotkey: '2' },
+] as const satisfies readonly { id: Tab; label: string; short: string; hotkey: string }[]
 
 async function togglePane($: EngineInterface): Promise<boolean> {
   if ((await $.ui.panes()).some(p => p.id === PANE)) {
@@ -40,7 +40,7 @@ export const register: Register = on => {
   on('tool.call', async ($, e, next) => {
     const ran = await next(e)
     const at = await $.clock.now()
-    await update($, items, list => [...list, { id: e.tool_use_id, text: String(e.tool), at }].slice(-100))
+    await update($, items, list => [...list, { id: e.tool_use_id, text: String(e.tool).slice(0, FIELD_MAX), at }].slice(-100))
     return ran
   })
 
@@ -48,33 +48,39 @@ export const register: Register = on => {
     const list = await read($, items)
     if (e.props.hasSurvey || list.length === 0 || (await read($, isBandHidden))) return next(e)
     const ui = $.ui.resolve(e) as Kit
+    const room = e.props.bodyColumns - cells(TITLE) - 14
     return (
       <ui.Box gap={1}>
         <ui.Text color={tone.accent}>◆</ui.Text>
-        <ui.Text dimColor>{list.length} items</ui.Text>
+        {room >= 4 && <ui.Text dimColor>{clip(`${list.length} items`, room)}</ui.Text>}
         <ui.Button key="open" label={TITLE} plain onPress={() => void togglePane($)} />
-        <ui.Button key="hide-band" label="×" plain onPress={() => update($, isBandHidden, () => true)} />
+        <ui.Button key="hide-band" label="Hide" plain onPress={() => update($, isBandHidden, () => true)} />
       </ui.Box>
     )
   })
 
   on('ui.render', { component: 'Pane', requestId: PANE }, async ($, e) => {
     const ui = $.ui.resolve(e) as Kit
-    const w = Math.max(20, e.props.bodyColumns)
+    const w = Math.max(1, e.props.bodyColumns)
+    const visible = Math.max(1, (e.props.scroll?.bodyRows ?? 20) - 8)
+    const hidden = await read($, isBandHidden)
     const stored = await read($, tab)
     const active: Tab = TABS.some(t => t.id === stored) ? stored : 'main'
     const list = await read($, items)
 
     return (
       <ui.Box flexDirection="column" gap={1}>
-        {Heading(ui, TITLE, `${list.length} items`)}
-        {Tabs(ui, TABS, active, id => void update($, tab, () => id))}
+        {Heading(ui, TITLE, w, `${list.length} items`)}
+        <ui.Box gap={1} flexWrap="wrap">
+          {Tabs(ui, TABS, active, w, id => void update($, tab, () => id))}
+          {hidden && <ui.Button key="show-band" label="Show band" plain onPress={() => update($, isBandHidden, () => false)} />}
+        </ui.Box>
         {Rule(ui, w)}
         {active === 'main' ? (
           <ui.Box flexDirection="column">
             {list.length === 0 && <ui.Text dimColor>Nothing yet.</ui.Text>}
-            {list.slice(-10).reverse().map(it => (
-              <ui.Text>{clip(it.text, w)}</ui.Text>
+            {list.slice(-visible).reverse().map(it => (
+              <ui.Text key={`item-${it.id}`}>{clip(it.text, w)}</ui.Text>
             ))}
           </ui.Box>
         ) : (

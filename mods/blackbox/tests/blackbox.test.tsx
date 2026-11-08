@@ -175,3 +175,15 @@ test('an edit row gets a one-line impact card, and an expanded row is left alone
   expect(await open.find({ type: 'Text', text: /blackbox/ })).toBeUndefined()
   await open.unmount()
 })
+
+test('the radar only offers clicks where the layout delivers them', async ($, on) => {
+  engine(on)
+  await start($)
+  await $.tool.call({ tool: 'Read', file_path: '/repo/README.md' })
+  const full = await $.ui.mount({ ...PANE, surface: 'terminal', viewport: { columns: 160, rows: 40, isFullscreen: true } })
+  expect(await full.find({ type: 'Text', text: /click a blip/ })).toBeDefined()
+  await full.unmount()
+  const main = await $.ui.mount({ ...PANE, surface: 'terminal', viewport: { columns: 160, rows: 40, isFullscreen: false } })
+  expect(await main.find({ type: 'Text', text: /click a blip/ })).toBeUndefined()
+  await main.unmount()
+})
