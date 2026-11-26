@@ -22,6 +22,7 @@ A living ASCII aquarium beside the chat. Claude's work keeps it alive.
 
 ### blackbox
 
+
 A flight recorder for a Claude Code session.
 
 ![blackbox: live radar of tool calls, and a risky command blocked](assets/blackbox.gif)
